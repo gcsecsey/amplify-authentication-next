@@ -7,11 +7,10 @@ function Protected({ authenticated, username }) {
   return <h1>Hello {username} from SSR route!</h1>;
 }
 
-export async function getServerSideProps(context) {
-  const { Auth } = withSSRContext(context);
+export async function getServerSideProps({ req, res }) {
+  const { Auth } = withSSRContext({ req });
   try {
     const user = await Auth.currentAuthenticatedUser();
-    console.log("user: ", user);
     return {
       props: {
         authenticated: true,
@@ -19,12 +18,10 @@ export async function getServerSideProps(context) {
       },
     };
   } catch (err) {
-    return {
-      props: {
-        authenticated: false,
-      },
-    };
+    res.writeHead(302, { Location: "/profile" });
+    res.end();
   }
+  return { props: {} };
 }
 
 export default Protected;
